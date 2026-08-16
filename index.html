@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#16213E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>वारणा गुणपत्रक</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --ink:#16213E;
+  --ink-2:#22335C;
+  --marigold:#E8A33D;
+  --marigold-dark:#C9832A;
+  --cream:#FAF6EC;
+  --card:#FFFFFF;
+  --line:#E4DBC8;
+  --green:#4C7A57;
+  --red:#B34D4D;
+  --text:#2A2A2A;
+  --muted:#7A7566;
+  --radius:14px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--cream);
+  color:var(--text);
+  font-family:'Noto Sans Devanagari', sans-serif;
+  min-height:100vh;
+  padding-bottom:76px;
+  -webkit-tap-highlight-color:transparent;
+}
+h1,h2,h3,.display{
+  font-family:'Noto Serif Devanagari', serif;
+  color:var(--ink);
+  margin:0;
+}
+.topbar{
+  background:linear-gradient(135deg,var(--ink) 0%,var(--ink-2) 100%);
+  color:#fff;
+  padding:18px 18px 22px;
+  border-radius:0 0 20px 20px;
+  position:sticky;top:0;z-index:20;
+  box-shadow:0 4px 14px rgba(22,33,62,0.18);
+}
+.topbar .eyebrow{
+  font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--marigold);font-weight:700;margin-bottom:2px;
+}
+.topbar h1{color:#fff;font-size:21px;}
+.topbar .sub{font-size:12.5px;color:#c9cee0;margin-top:2px;}
+.wrap{padding:16px 14px 8px;max-width:720px;margin:0 auto;}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:0 1px 3px rgba(22,33,62,0.05);
+}
+.card h2{font-size:16.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card h2 .tag{
+  font-family:'Noto Sans Devanagari';font-size:11px;background:var(--marigold);
+  color:#fff;padding:2px 8px;border-radius:20px;font-weight:700;
+}
+label{display:block;font-size:12.5px;color:var(--muted);margin:8px 0 4px;font-weight:600;}
+input[type=text],input[type=number],select,textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;
+  font-family:inherit;font-size:14.5px;background:#fff;color:var(--text);
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--marigold);}
+.row{display:flex;gap:8px;flex-wrap:wrap;}
+.row>*{flex:1;min-width:110px;}
+button{
+  font-family:inherit;cursor:pointer;border:none;border-radius:10px;
+  padding:10px 16px;font-size:14px;font-weight:700;transition:transform .08s ease;
+}
+button:active{transform:scale(0.97);}
+.btn-primary{background:var(--marigold);color:#fff;}
+.btn-primary:hover{background:var(--marigold-dark);}
+.btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+.btn-danger{background:#fff;color:var(--red);border:1.5px solid #ecd3d3;}
+.btn-green{background:var(--green);color:#fff;}
+.btn-sm{padding:6px 11px;font-size:12.5px;}
+.btn-block{width:100%;}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;background:#F1ECDE;color:var(--ink);
+  padding:7px 12px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;
+  border:1.5px solid transparent;margin:3px 4px 3px 0;
+}
+.chip.active{background:var(--ink);color:#fff;}
+.chip .x{opacity:.6;font-weight:900;margin-left:2px;}
+.hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;}
+.divider{height:1px;background:var(--line);margin:14px 0;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th,td{border:1px solid var(--line);padding:6px 5px;text-align:center;}
+th{background:#F1ECDE;color:var(--ink);font-weight:700;position:sticky;top:0;}
+td input{width:52px;padding:4px;text-align:center;border:1px solid var(--line);border-radius:6px;font-size:12.5px;}
+td input.err{border-color:var(--red);background:#FDF1F1;}
+.tblwrap{overflow-x:auto;border-radius:10px;border:1px solid var(--line);}
+.name-col{text-align:right;min-width:120px;font-weight:600;white-space:nowrap;}
+.grade-A{color:var(--green);font-weight:800;}
+.grade-B{color:#7A6A20;font-weight:800;}
+.grade-C{color:var(--red);font-weight:800;}
+.empty{
+  text-align:center;padding:36px 12px;color:var(--muted);
+}
+.empty .big{font-size:34px;margin-bottom:8px;}
+.tabbar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#fff;border-top:1px solid var(--line);
+  display:flex;z-index:30;
+  box-shadow:0 -4px 14px rgba(22,33,62,0.08);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbtn{
+  flex:1;background:none;border:none;padding:9px 2px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--muted);font-size:10.5px;font-weight:700;border-radius:0;
+}
+.tabbtn .ic{font-size:19px;line-height:1;}
+.tabbtn.active{color:var(--marigold-dark);}
+.tabbtn.active .ic{transform:translateY(-2px);}
+.section{display:none;}
+.section.active{display:block;}
+.pill-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.small-note{font-size:11.5px;color:var(--muted);}
+.toast{
+  position:fixed;bottom:88px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:10px 18px;border-radius:30px;
+  font-size:13px;font-weight:600;z-index:100;opacity:0;pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;box-shadow:0 6px 18px rgba(0,0,0,.25);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+.term-block{border:1.5px dashed var(--line);border-radius:12px;padding:12px;margin-top:10px;}
+/* Custom modal dialogs — replace native prompt()/confirm() which don't work inside
+   sandboxed iframes (many artifact/preview embeds block window.prompt and window.confirm). */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(22,33,62,0.45);z-index:200;
+  display:none;align-items:flex-end;justify-content:center;
+  padding:0;
+}
+.modal-overlay.show{display:flex;}
+.modal-box{
+  background:#fff;border-radius:18px 18px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));
+  width:100%;max-width:480px;box-shadow:0 -8px 24px rgba(0,0,0,.2);
+  animation:modalUp .18s ease;
+}
+@media (min-width:600px){
+  .modal-overlay{align-items:center;}
+  .modal-box{border-radius:16px;padding:22px;}
+}
+@keyframes modalUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-box h3{font-size:15.5px;margin-bottom:10px;color:var(--ink);}
+.modal-box .modal-msg{font-size:14px;color:var(--text);line-height:1.5;margin-bottom:14px;}
+.modal-box input{margin-bottom:14px;}
+.modal-actions{display:flex;gap:10px;}
+.modal-actions button{flex:1;}
+.term-block h4{margin:0 0 8px;font-size:14px;color:var(--ink);}
+.comp-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.comp-row input{flex:1;}
+.comp-row input.maxnum{flex:0 0 62px;}
+.iconbtn{background:none;border:none;color:var(--red);font-size:17px;padding:4px 8px;cursor:pointer;}
+select.subj-select{margin-bottom:8px;}
+.subtle-card{background:#F8F4E9;border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--ink-2);margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="eyebrow">वारणा विद्यालय · डिजिटल गुणपत्रक</div>
+  <h1 id="schoolTitle">श्री वारणा विद्यालय, वारणानगर</h1>
+  <div class="sub" id="yearSub">शैक्षणिक वर्ष 2024-25</div>
+</div>
+
+<div class="wrap">
+
+  <!-- ================= SETUP ================= -->
+  <section class="section active" id="tab-setup">
+    <div class="card">
+      <h2>🏫 शाळेची माहिती</h2>
+      <label>शाळेचे नाव</label>
+      <input type="text" id="inSchoolName" placeholder="उदा. श्री वारणा विद्यालय, वारणानगर">
+      <label>शैक्षणिक वर्ष</label>
+      <input type="text" id="inYear" placeholder="उदा. 2024-25">
+      <button class="btn-primary btn-block" style="margin-top:12px" onclick="saveSchoolInfo()">जतन करा</button>
+    </div>
+
+    <div class="card">
+      <h2>➕ वर्ग-तुकडी जोडा <span class="tag">Class-Section</span></h2>
+      <div class="row">
+        <div>
+          <label>वर्ग</label>
+          <select id="inClass">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+          </select>
+        </div>
+        <div>
+          <label>तुकडी</label>
+          <input type="text" id="inDivision" placeholder="उदा. अ, ब, क">
+        </div>
+      </div>
+      <button class="btn-primary btn-block" style="margin-top:12px" onclick="addClassSection()">वर्ग-तुकडी जोडा</button>
+    </div>
+
+    <div class="card" id="csListCard">
+      <h2>📚 वर्ग-तुकडी यादी</h2>
+      <div id="csList" class="pill-row"></div>
+      <div class="hint">वर्ग-तुकडीवर टॅप करून त्यातील विषय व घटक (components) सेट करा.</div>
+    </div>
+
+    <div class="card" id="subjSetupCard" style="display:none">
+      <h2>📖 विषय व मूल्यमापन घटक <span class="tag" id="csTagName"></span></h2>
+      <div id="subjList"></div>
+      <div class="divider"></div>
+      <h3 style="font-size:14px;margin-bottom:8px;">नवीन विषय जोडा</h3>
+      <label>विषयाचे नाव</label>
+      <input type="text" id="inSubjName" placeholder="उदा. गणित, जलसुरक्षा, IT">
+      <label>विषय शिक्षकाचे नाव</label>
+      <input type="text" id="inTeacherName" placeholder="उदा. श्री माणगावे पी. पी.">
+      <button class="btn-primary btn-block" style="margin-top:10px" onclick="addSubject()">विषय जोडा</button>
+    </div>
+  </section>
+
+  <!-- ================= STUDENTS ================= -->
+  <section class="section" id="tab-students">
+    <div class="card">
+      <h2>👧🧒 विद्यार्थी यादी</h2>
+      <label>वर्ग-तुकडी निवडा</label>
+      <select id="stuCsSelect" onchange="renderStudentTable()"></select>
+    </div>
+
+    <div class="card" id="stuAddCard" style="display:none">
+      <h3 style="font-size:14px;margin-bottom:8px;">नवीन विद्यार्थी जोडा</h3>
+      <div class="row">
+        <div>
+          <label>बैठक क्र.</label>
+          <input type="text" id="inSeatNo" placeholder="उदा. 1300">
+        </div>
+        <div style="flex:2">
+          <label>पूर्ण नाव (मराठीत)</label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="inStuName" placeholder="उदा. अक्षरा प्रविण देसाई" style="flex:1">
+            <button type="button" class="btn-ghost btn-sm" id="micBtnStuName" title="आवाजाने नाव सांगा" onclick="voiceInput('inStuName', this)">🎤</button>
+          </div>
+        </div>
+      </div>
+      <div class="hint" id="micHintStuName" style="display:none">🎤 वर टॅप करून मराठीत नाव बोला (मायक्रोफोन परवानगी द्या).</div>
+      <button class="btn-primary btn-block" style="margin-top:10px" onclick="addStudent()">विद्यार्थी जोडा</button>
+      <div class="divider"></div>
+      <label>Excel मधून यादी आयात करा (Seat No, Name स्तंभ असलेली फाईल)</label>
+      <input type="file" id="stuImportFile" accept=".xlsx,.xls" onchange="importStudentsExcel(event)">
+    </div>
+
+    <div class="card" id="stuTableCard" style="display:none">
+      <h2>यादी</h2>
+      <div class="tblwrap"><table id="stuTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ================= MARKS ENTRY ================= -->
+  <section class="section" id="tab-marks">
+    <div class="card">
+      <h2>✍️ गुण नोंदणी</h2>
+      <label>वर्ग-तुकडी</label>
+      <select id="marksCsSelect" onchange="onMarksCsChange()"></select>
+      <label>विषय</label>
+      <select id="marksSubjSelect" onchange="onMarksSubjChange()"></select>
+      <label>सत्र / टर्म</label>
+      <select id="marksTermSelect" onchange="renderMarksGrid()"></select>
+    </div>
+    <div class="card" id="marksGridCard" style="display:none">
+      <h2 id="marksGridTitle">गुण भरा</h2>
+      <div class="tblwrap"><table id="marksTable"></table></div>
+      <div class="hint">कमाल गुणांपेक्षा जास्त भरल्यास सेल लाल दिसेल. सर्व बेरीज व श्रेणी आपोआप मोजली जाते.</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn-green" onclick="exportSubjectTermExcel()">📤 Excel एक्सपोर्ट</button>
+        <button class="btn-ghost" onclick="printMarksTable()">🖨️ प्रिंट / PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RESULT ================= -->
+  <section class="section" id="tab-result">
+    <div class="card">
+      <h2>🏆 निकाल</h2>
+      <label>वर्ग-तुकडी</label>
+      <select id="resCsSelect" onchange="onResCsChange()"></select>
+      <label>निकालाचा प्रकार</label>
+      <select id="resModeSelect" onchange="onResModeChange()">
+        <option value="single">एका सत्राचा निकाल</option>
+        <option value="annual">दोन सत्रे एकत्र — वार्षिक/अंतिम निकाल</option>
+      </select>
+
+      <div id="resSingleWrap">
+        <label>सत्र / टर्म नाव</label>
+        <select id="resTermSelect" onchange="renderCombinedResult()"></select>
+      </div>
+
+      <div id="resAnnualWrap" style="display:none">
+        <div class="grid2">
+          <div>
+            <label>सत्र 1</label>
+            <select id="resTermASelect" onchange="renderCombinedResult()"></select>
+          </div>
+          <div>
+            <label>सत्र 2</label>
+            <select id="resTermBSelect" onchange="renderCombinedResult()"></select>
+          </div>
+        </div>
+        <label>अंतिम श्रेणीसाठी स्केल</label>
+        <select id="resAnnualScaleSelect" onchange="renderCombinedResult()">
+          <option value="">— सर्वसाधारण % स्केल वापरा —</option>
+        </select>
+        <div class="hint">दोन्ही सत्रांचे गुण बेरीज करून (उदा. 100+100=200) पुन्हा 100 पैकी रूपांतरित करून अंतिम निकाल व श्रेणी दाखवली जाते — जसे 9वी-10वीसाठी अपेक्षित असते.</div>
+      </div>
+      <div class="hint">टीप: प्रत्येक विषयात सत्र-नाव (उदा. "सहामाही 1") एकसारखे टाका, म्हणजे निकाल एकत्र जुळतो.</div>
+    </div>
+    <div class="card" id="resTableCard" style="display:none">
+      <h2 id="resTableTitle">निकालपत्रक</h2>
+      <div class="tblwrap"><table id="resTable"></table></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn-green" onclick="exportCombinedExcel()">📤 Excel एक्सपोर्ट</button>
+        <button class="btn-ghost" onclick="printResultTable()">🖨️ प्रिंट / PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS/DATA ================= -->
+  <section class="section" id="tab-data">
+    <div class="card">
+      <h2>💾 डेटा जतन / पुनर्संचयित</h2>
+      <div class="subtle-card">खाली "☁️ क्लाउड सिंक" सेट केलेले नसेल, तर हा app कोणत्याही सर्व्हरला जोडलेला नाही — प्रत्येक ब्राउझर/फोन स्वतंत्र असतो. अशा वेळी काम झाल्यावर <b>"डेटा डाऊनलोड करा"</b> दाबून JSON फाईल सेव्ह करा; दुसऱ्या डिव्हाइसवर काम सुरू ठेवायचे असल्यास तीच फाईल तिथे <b>लोड</b> करा.</div>
+      <button class="btn-primary btn-block" onclick="downloadData()">⬇️ डेटा डाऊनलोड करा (.json)</button>
+      <div class="divider"></div>
+      <label>डेटा फाईल निवडा (.json)</label>
+      <input type="file" id="loadDataFile" accept=".json" onchange="loadDataFile(event)">
+      <div style="margin-top:8px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink);margin:0;">
+          <input type="checkbox" id="mergeLoadCheck" style="width:auto">
+          मिसळा (Merge) — वेगवेगळ्या शिक्षकांनी वेगवेगळ्या विषयांचे/वर्गांचे डेटा भरले असल्यास, सध्याच्या डेटामध्ये ही फाईल <b>मिसळून जोडा</b> (विद्यमान डेटा न मिटवता)
+        </label>
+        <div class="hint">टीक न केल्यास ही फाईल सध्याचा संपूर्ण डेटा <b>बदलून टाकेल (replace)</b>.</div>
+      </div>
+      <div class="divider"></div>
+      <button class="btn-danger btn-block" onclick="resetAllData()">🗑️ सर्व डेटा मिटवा</button>
+    </div>
+
+    <div class="card" id="cloudSyncCard">
+      <h2>☁️ क्लाउड सिंक <span class="tag" id="cloudStatusTag">सेट केलेले नाही</span></h2>
+      <div id="cloudNotConfiguredMsg" class="subtle-card">
+        क्लाउड सिंक अजून सेट केलेले नाही — याशिवाय वरील JSON डाऊनलोड/लोड पद्धत नेहमीप्रमाणे काम करते. क्लाउड सिंक सेट झाल्यावर सर्व शिक्षक कोणत्याही ब्राउझर/फोनवरून एकाच शाळेच्या डेटावर काम करू शकतील.
+      </div>
+      <div id="cloudConfiguredWrap" style="display:none">
+        <div class="subtle-card" id="cloudLastSyncMsg">स्थिती तपासत आहे…</div>
+        <div class="row">
+          <button class="btn-primary" onclick="pushToCloud()">⬆️ क्लाउडवर पाठवा</button>
+          <button class="btn-ghost" onclick="pullFromCloud()">⬇️ क्लाउडवरून आणा</button>
+        </div>
+        <div class="hint">काम सुरू करण्याआधी नेहमी "क्लाउडवरून आणा" दाबा (इतरांनी केलेले बदल मिळावेत म्हणून), आणि काम संपल्यावर "क्लाउडवर पाठवा" दाबा (तुमचे बदल सर्वांसाठी उपलब्ध व्हावेत म्हणून). ⚠️ "पाठवा" दाबल्यास क्लाउडवरील डेटा तुमच्या स्थानिक डेटाने बदलला जाईल.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 श्रेणी वर्गीकरण स्केल्स <span class="tag">Grade Scales</span></h2>
+      <div class="subtle-card">
+        1 ली ते 8 वी व 9वी-10वी साठी श्रेणी वेगळी असते, आणि एकूण गुण (उदा. 50, 80, 100) वेगळे असल्यास सारणीसुद्धा वेगळी दिली जाते. इथे हव्या तितक्या नामांकित स्केल्स बनवा — प्रत्येक स्केलमध्ये <b>प्रत्यक्ष मिळालेल्या गुणांची (raw marks) रेंज</b> टाका, टक्केवारी नाही. नंतर "सेटअप" टॅबमध्ये प्रत्येक सत्रासाठी योग्य स्केल निवडा.
+      </div>
+      <div id="gradeScalesWrap"></div>
+      <button class="btn-ghost btn-block" style="margin-top:10px" onclick="addGradeScale()">+ नवीन स्केल जोडा</button>
+    </div>
+
+    <div class="card">
+      <h2>🎯 सर्वसाधारण % स्केल <span class="tag">Fallback</span></h2>
+      <div class="subtle-note small-note" style="margin-bottom:8px;">एखाद्या सत्रासाठी वरीलपैकी कोणतीच स्केल निवडलेली नसेल, तर ही टक्केवारी-आधारित सर्वसाधारण सारणी वापरली जाते.</div>
+      <div id="gradeTableWrap"></div>
+      <button class="btn-ghost btn-sm" style="margin-top:8px" onclick="addGradeRow()">+ श्रेणी जोडा</button>
+      <button class="btn-primary btn-block" style="margin-top:10px" onclick="saveGrades()">जतन करा</button>
+    </div>
+
+    <div class="card">
+      <h2>ℹ️ App बद्दल</h2>
+      <p class="small-note">वारणा गुणपत्रक — शिक्षकांसाठी बनवलेला मराठी गुणपत्रक व्यवस्थापन app. मोबाईलवर हा app "Home Screen वर जोडा" (Add to Home screen) करून अँड्रॉईड app प्रमाणे वापरता येतो: Chrome मध्ये उघडून वरच्या उजव्या ⋮ मेनूमधून "Add to Home screen" निवडा.</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="tabbar">
+  <button class="tabbtn active" data-tab="setup" onclick="switchTab('setup')"><span class="ic">⚙️</span>सेटअप</button>
+  <button class="tabbtn" data-tab="students" onclick="switchTab('students')"><span class="ic">👥</span>विद्यार्थी</button>
+  <button class="tabbtn" data-tab="marks" onclick="switchTab('marks')"><span class="ic">✍️</span>गुण</button>
+  <button class="tabbtn" data-tab="result" onclick="switchTab('result')"><span class="ic">🏆</span>निकाल</button>
+  <button class="tabbtn" data-tab="data" onclick="switchTab('data')"><span class="ic">💾</span>डेटा</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== DATA MODEL ===================== */
+let appData = {
+  school: { name: "श्री वारणा विद्यालय, वारणानगर", taluka: "पन्हाळा" },
+  academicYear: "2024-25",
+  classSections: [],   // {id, class, division, subjects:[{subjectId, subjectName, teacherName, terms:[{termName, components:[{key,label,max}], hasExtra:bool, extra:[{key,label,max}]}]}]}
+  students: [],        // {srNo, seatNo, classSectionId, name}
+  marks: [],           // {studentSeatNo, subjectId, termName, values:{}}
+  gradeThresholds: [
+    {min:91,label:"A1"},{min:81,label:"A2"},{min:71,label:"B1"},{min:61,label:"B2"},
+    {min:51,label:"C1"},{min:41,label:"C2"},{min:0,label:"D"}
+  ],
+  // Named grade scales using RAW score bands (not %) — because Maharashtra progress-card
+  // grade tables are given per total-marks (50/80/100 etc.), and 1-8 वी vs 9-10 वी differ.
+  // These starting values are approximate/proportional placeholders — always verify and
+  // edit them against your school's official circular before relying on them.
+  gradeScales: [
+    { id:'scale_100_910', name:'100 गुणांसाठी (9वी-10वी)', totalMax:100,
+      thresholds:[{min:91,label:'A1'},{min:81,label:'A2'},{min:71,label:'B1'},{min:61,label:'B2'},{min:51,label:'C1'},{min:41,label:'C2'},{min:0,label:'D'}] },
+    { id:'scale_80', name:'80 गुणांसाठी', totalMax:80,
+      thresholds:[{min:73,label:'A1'},{min:65,label:'A2'},{min:57,label:'B1'},{min:49,label:'B2'},{min:41,label:'C1'},{min:33,label:'C2'},{min:0,label:'D'}] },
+    { id:'scale_50', name:'50 गुणांसाठी', totalMax:50,
+      thresholds:[{min:46,label:'A1'},{min:41,label:'A2'},{min:36,label:'B1'},{min:31,label:'B2'},{min:26,label:'C1'},{min:21,label:'C2'},{min:0,label:'D'}] },
+    { id:'scale_1to8', name:'1 ली ते 8 वी सर्वसाधारण (100 पैकी) — उदाहरण, तपासून घ्या', totalMax:100,
+      thresholds:[{min:75,label:'अ'},{min:60,label:'ब'},{min:45,label:'क'},{min:35,label:'ड'},{min:0,label:'ई'}] }
+  ]
+};
+
+let selectedCsId = null; // for setup screen
+
+/* ===================== ☁️ CLOUD SYNC (Firebase) =====================
+   To enable: create a free Firebase project (https://console.firebase.google.com),
+   enable "Anonymous" sign-in under Authentication, create a Firestore database,
+   and paste your project's config values below (replace the YOUR_... placeholders).
+   Until this is filled in, the app works exactly as before (JSON download/load only). */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD4J3f2Bdkj03PJzPG-z2HyXQ9gJ6ruKtc",
+  authDomain: "warana-gunpatrak.firebaseapp.com",
+  projectId: "warana-gunpatrak",
+  storageBucket: "warana-gunpatrak.firebasestorage.app",
+  messagingSenderId: "468613649609",
+  appId: "1:468613649609:web:ae3e0cf85cc9d54808e918"
+};
+const CLOUD_DOC_PATH = { collection: 'varana_gunpatrak_data', doc: 'main' };
+let cloudDb = null;
+let cloudReady = false;
+
+function isFirebaseConfigured(){
+  return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY';
+}
+function initCloudSync(){
+  const tag = document.getElementById('cloudStatusTag');
+  const notConfigured = document.getElementById('cloudNotConfiguredMsg');
+  const configuredWrap = document.getElementById('cloudConfiguredWrap');
+  if(!isFirebaseConfigured()){
+    if(tag) tag.textContent = 'सेट केलेले नाही';
+    if(notConfigured) notConfigured.style.display = 'block';
+    if(configuredWrap) configuredWrap.style.display = 'none';
+    return;
+  }
+  try{
+    if(!firebase.apps || !firebase.apps.length){ firebase.initializeApp(FIREBASE_CONFIG); }
+    cloudDb = firebase.firestore();
+    firebase.auth().signInAnonymously().then(()=>{
+      cloudReady = true;
+      if(tag) tag.textContent = 'सक्रिय ✓';
+      if(notConfigured) notConfigured.style.display = 'none';
+      if(configuredWrap) configuredWrap.style.display = 'block';
+      refreshCloudStatusMsg();
+      // Auto-pull the latest data once, on app open, so a teacher starting work
+      // sees everyone else's latest changes without having to remember to click Pull.
+      pullFromCloud(true);
+    }).catch(err=>{
+      if(tag) tag.textContent = 'त्रुटी';
+      toast('क्लाउड लॉगिन अयशस्वी: ' + err.message);
+    });
+  }catch(err){
+    if(tag) tag.textContent = 'त्रुटी';
+    toast('क्लाउड सुरू करता आले नाही: ' + err.message);
+  }
+}
+function refreshCloudStatusMsg(){
+  const msgEl = document.getElementById('cloudLastSyncMsg');
+  if(!msgEl || !cloudDb) return;
+  cloudDb.collection(CLOUD_DOC_PATH.collection).doc(CLOUD_DOC_PATH.doc).get().then(snap=>{
+    if(snap.exists && snap.data().updatedAt){
+      const d = snap.data().updatedAt.toDate();
+      msgEl.textContent = 'क्लाउडवर शेवटचे अपडेट: ' + d.toLocaleString('mr-IN');
+    } else {
+      msgEl.textContent = 'क्लाउडवर अजून काहीही सेव्ह केलेले नाही — "क्लाउडवर पाठवा" दाबा.';
+    }
+  }).catch(()=>{ msgEl.textContent = 'स्थिती तपासता आली नाही.'; });
+}
+function pushToCloud(){
+  if(!cloudReady || !cloudDb){ toast('क्लाउड सिंक तयार नाही'); return; }
+  showConfirmModal('क्लाउडवरील डेटा तुमच्या स्थानिक डेटाने बदलला जाईल (सर्वांसाठी). पुढे जायचे?', function(){
+    const clean = JSON.parse(JSON.stringify(appData)); // strip any undefined values before sending
+    cloudDb.collection(CLOUD_DOC_PATH.collection).doc(CLOUD_DOC_PATH.doc).set({
+      json: JSON.stringify(clean),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(()=>{
+      toast('क्लाउडवर पाठवले ✓');
+      refreshCloudStatusMsg();
+    }).catch(err=> toast('क्लाउडवर पाठवता आले नाही: ' + err.message));
+  });
+}
+function pullFromCloud(silent){
+  if(!cloudReady || !cloudDb){ if(!silent) toast('क्लाउड सिंक तयार नाही'); return; }
+  cloudDb.collection(CLOUD_DOC_PATH.collection).doc(CLOUD_DOC_PATH.doc).get().then(snap=>{
+    if(!snap.exists){ if(!silent) toast('क्लाउडवर अजून डेटा नाही'); return; }
+    const data = snap.data();
+    appData = JSON.parse(data.json);
+    selectedCsId = null;
+    initAll();
+    refreshCloudStatusMsg();
+    if(!silent) toast('क्लाउडवरून नवीनतम डेटा आणला ✓');
+  }).catch(err=>{ if(!silent) toast('क्लाउडवरून आणता आले नाही: ' + err.message); });
+}
+
+
+/* ===================== HELPERS ===================== */
+function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,9); }
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function keyify(label){
+  return label.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_अ-ह्ािीुूेैोौंँ:]/g,'') || uid('k');
+}
+function findCs(id){ return appData.classSections.find(c=>c.id===id); }
+function findSubject(cs, subjectId){ return cs.subjects.find(s=>s.subjectId===subjectId); }
+function findTerm(subject, termName){ return subject.terms.find(t=>t.termName===termName); }
+function studentsInCs(csId){ return appData.students.filter(s=>s.classSectionId===csId).sort((a,b)=>a.srNo-b.srNo); }
+function getMarkRow(seatNo, subjectId, termName){
+  return appData.marks.find(m=>m.studentSeatNo===seatNo && m.subjectId===subjectId && m.termName===termName);
+}
+function getOrCreateMarkRow(seatNo, subjectId, termName){
+  let m = getMarkRow(seatNo, subjectId, termName);
+  if(!m){ m = {studentSeatNo:seatNo, subjectId, termName, values:{}}; appData.marks.push(m); }
+  return m;
+}
+function sumComponents(comps, values){
+  let s=0; comps.forEach(c=>{ const v = Number(values[c.key]); if(!isNaN(v)) s+=v; });
+  return s;
+}
+function maxComponents(comps){ return comps.reduce((a,c)=>a+Number(c.max||0),0); }
+function gradeFromPercent(pct){
+  const sorted = [...appData.gradeThresholds].sort((a,b)=>b.min-a.min);
+  for(const g of sorted){ if(pct>=g.min) return g.label; }
+  return sorted.length? sorted[sorted.length-1].label : "-";
+}
+function findGradeScale(id){ return appData.gradeScales.find(s=>s.id===id); }
+function computeGradeForTerm(term, total, totalMax){
+  // Prefer the raw-score scale assigned to this term (matches how progress-card tables
+  // are actually published — per total marks, not a single universal percentage).
+  if(term && term.gradeScaleId){
+    const scale = findGradeScale(term.gradeScaleId);
+    if(scale){
+      const sorted = [...scale.thresholds].sort((a,b)=>b.min-a.min);
+      for(const g of sorted){ if(total>=g.min) return g.label; }
+      return sorted.length? sorted[sorted.length-1].label : "-";
+    }
+  }
+  // Fallback: generic percentage-based scale.
+  const pct = totalMax>0 ? (total/totalMax*100) : 0;
+  return gradeFromPercent(pct);
+}
+function gradeClass(label){
+  if(/^A/.test(label) || label==='अ') return 'grade-A';
+  if(/^B/.test(label) || label==='ब') return 'grade-B';
+  if(label==='क') return 'grade-B';
+  return 'grade-C';
+}
+
+/* ===================== TABS ===================== */
+function switchTab(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  refreshCsSelects();
+  if(name==='students') renderStudentTable();
+  if(name==='marks') syncMarksSelectors();
+  if(name==='result') syncResultSelectors();
+}
+
+/* ===================== CUSTOM MODALS (replace prompt()/confirm()) ===================== */
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+function showPromptModal(title, placeholder, defaultVal, onSubmit){
+  const overlay = document.getElementById('modalOverlay');
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <h3>${title}</h3>
+    <input type="text" id="modalPromptInput" placeholder="${placeholder||''}" value="${defaultVal||''}">
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">रद्द करा</button>
+      <button class="btn-primary" id="modalPromptOk">ठीक आहे</button>
+    </div>`;
+  overlay.classList.add('show');
+  const input = document.getElementById('modalPromptInput');
+  setTimeout(()=>input.focus(), 50);
+  const submit = ()=>{
+    const val = input.value.trim();
+    closeModal();
+    if(val) onSubmit(val);
+  };
+  document.getElementById('modalPromptOk').onclick = submit;
+  input.onkeydown = (e)=>{ if(e.key==='Enter') submit(); };
+}
+function showConfirmModal(message, onConfirm){
+  const overlay = document.getElementById('modalOverlay');
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <div class="modal-msg">${message}</div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">रद्द करा</button>
+      <button class="btn-danger" id="modalConfirmOk" style="background:var(--red);color:#fff;border:none;">होय, डिलीट करा</button>
+    </div>`;
+  overlay.classList.add('show');
+  document.getElementById('modalConfirmOk').onclick = ()=>{ closeModal(); onConfirm(); };
+}
+
+/* ===================== SETUP: SCHOOL INFO ===================== */
+function saveSchoolInfo(){
+  const name = document.getElementById('inSchoolName').value.trim();
+  const year = document.getElementById('inYear').value.trim();
+  if(name) appData.school.name = name;
+  if(year) appData.academicYear = year;
+  document.getElementById('schoolTitle').textContent = appData.school.name;
+  document.getElementById('yearSub').textContent = "शैक्षणिक वर्ष " + appData.academicYear;
+  toast("शाळेची माहिती जतन झाली ✓");
+}
+
+/* ===================== SETUP: CLASS-SECTIONS ===================== */
+function addClassSection(){
+  const cls = document.getElementById('inClass').value;
+  const div = document.getElementById('inDivision').value.trim();
+  if(!div){ toast("कृपया तुकडी टाका"); return; }
+  const id = cls + "_" + div;
+  if(findCs(id)){ toast("ही वर्ग-तुकडी आधीच आहे"); return; }
+  appData.classSections.push({ id, class: cls, division: div, subjects: [] });
+  document.getElementById('inDivision').value = '';
+  renderCsList();
+  toast("वर्ग-तुकडी जोडली ✓");
+}
+function renderCsList(){
+  const wrap = document.getElementById('csList');
+  wrap.innerHTML = '';
+  if(appData.classSections.length===0){
+    wrap.innerHTML = '<div class="small-note">अजून वर्ग-तुकडी जोडलेली नाही.</div>';
+  }
+  appData.classSections.forEach(cs=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (cs.id===selectedCsId ? ' active':'');
+    chip.innerHTML = `${cs.class} वी ${cs.division} <span class="x" onclick="event.stopPropagation();deleteCs('${cs.id}')">✕</span>`;
+    chip.onclick = ()=> selectCs(cs.id);
+    wrap.appendChild(chip);
+  });
+  refreshCsSelects();
+}
+function deleteCs(id){
+  showConfirmModal('ही वर्ग-तुकडी व त्यातील सर्व विषय/विद्यार्थी/गुण डिलीट करायचे?', function(){
+    const cs = findCs(id);
+    const subjectIds = cs ? cs.subjects.map(s=>s.subjectId) : [];
+    appData.classSections = appData.classSections.filter(c=>c.id!==id);
+    appData.students = appData.students.filter(s=>s.classSectionId!==id);
+    appData.marks = appData.marks.filter(m=> !subjectIds.includes(m.subjectId));
+    if(selectedCsId===id){ selectedCsId=null; document.getElementById('subjSetupCard').style.display='none'; }
+    renderCsList();
+  });
+}
+function selectCs(id){
+  selectedCsId = id;
+  renderCsList();
+  const cs = findCs(id);
+  document.getElementById('subjSetupCard').style.display = 'block';
+  document.getElementById('csTagName').textContent = cs.class + ' वी ' + cs.division;
+  renderSubjectList();
+}
+
+/* ===================== SETUP: SUBJECTS & TERMS ===================== */
+function addSubject(){
+  const cs = findCs(selectedCsId);
+  if(!cs){ toast('आधी वर्ग-तुकडी निवडा'); return; }
+  const name = document.getElementById('inSubjName').value.trim();
+  const teacher = document.getElementById('inTeacherName').value.trim();
+  if(!name){ toast('विषयाचे नाव टाका'); return; }
+  const subjectId = uid('subj');
+  cs.subjects.push({ subjectId, subjectName:name, teacherName:teacher, terms: [] });
+  document.getElementById('inSubjName').value='';
+  document.getElementById('inTeacherName').value='';
+  renderSubjectList();
+  toast('विषय जोडला ✓');
+}
+function deleteSubject(subjectId){
+  const cs = findCs(selectedCsId);
+  showConfirmModal('हा विषय व त्यातील गुण डिलीट करायचे?', function(){
+    cs.subjects = cs.subjects.filter(s=>s.subjectId!==subjectId);
+    appData.marks = appData.marks.filter(m=>m.subjectId!==subjectId);
+    renderSubjectList();
+  });
+}
+function renderSubjectList(){
+  const cs = findCs(selectedCsId);
+  const wrap = document.getElementById('subjList');
+  wrap.innerHTML = '';
+  if(!cs.subjects.length){
+    wrap.innerHTML = '<div class="small-note">अजून विषय जोडलेला नाही.</div>';
+  }
+  cs.subjects.forEach(subj=>{
+    const div = document.createElement('div');
+    div.className = 'term-block';
+    div.innerHTML = `
+      <h4>📘 ${subj.subjectName} ${subj.teacherName? '<span class="small-note">— '+subj.teacherName+'</span>':''}
+        <button class="iconbtn" style="float:right" onclick="deleteSubject('${subj.subjectId}')">✕</button></h4>
+      <div id="terms-${subj.subjectId}"></div>
+      <button class="btn-ghost btn-sm" onclick="addTermPrompt('${subj.subjectId}')">+ सत्र/टर्म जोडा</button>
+    `;
+    wrap.appendChild(div);
+    renderTermsForSubject(subj);
+  });
+}
+function addTermPrompt(subjectId){
+  const cs = findCs(selectedCsId);
+  const subj = findSubject(cs, subjectId);
+  showPromptModal('सत्राचे नाव टाका', 'उदा. सहामाही 1, प्रथम सत्र', '', function(termName){
+    if(findTerm(subj, termName)){ toast('हे सत्र आधीच आहे'); return; }
+    subj.terms.push({ termName, groupALabel:'आकारिक', groupBLabel:'संकलित', components:[
+      {key:uid('c'), label:'आकारिक 1', max:10},
+      {key:uid('c'), label:'आकारिक 2', max:10}
+    ], hasExtra:true, extra:[{key:uid('e'), label:'संकलित मूल्यमापन', max:80}] });
+    renderSubjectList();
+  });
+}
+function glabelA(term){ return term.groupALabel || 'अ गट'; }
+function glabelB(term){ return term.groupBLabel || 'ब गट'; }
+function renderTermsForSubject(subj){
+  const wrap = document.getElementById('terms-'+subj.subjectId);
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  subj.terms.forEach((term, ti)=>{
+    const block = document.createElement('div');
+    block.style.background = '#FBFAF5';
+    block.style.border = '1px solid var(--line)';
+    block.style.borderRadius = '10px';
+    block.style.padding = '10px';
+    block.style.marginBottom = '8px';
+    let compsHtml = term.components.map((c,ci)=>`
+      <div class="comp-row">
+        <input type="text" value="${c.label}" onchange="updateComp('${subj.subjectId}','${term.termName}',${ci},'label',this.value)" placeholder="घटकाचे नाव">
+        <input type="number" class="maxnum" value="${c.max}" onchange="updateComp('${subj.subjectId}','${term.termName}',${ci},'max',this.value)" placeholder="कमाल">
+        <button class="iconbtn" onclick="removeComp('${subj.subjectId}','${term.termName}',${ci})">✕</button>
+      </div>`).join('');
+    let extraHtml = term.hasExtra ? term.extra.map((c,ci)=>`
+      <div class="comp-row">
+        <input type="text" value="${c.label}" onchange="updateExtra('${subj.subjectId}','${term.termName}',${ci},'label',this.value)" placeholder="घटकाचे नाव">
+        <input type="number" class="maxnum" value="${c.max}" onchange="updateExtra('${subj.subjectId}','${term.termName}',${ci},'max',this.value)" placeholder="कमाल">
+        <button class="iconbtn" onclick="removeExtra('${subj.subjectId}','${term.termName}',${ci})">✕</button>
+      </div>`).join('') : '';
+    const termTotalMax = maxComponents(term.components) + (term.hasExtra?maxComponents(term.extra):0);
+    let scaleWarning = '';
+    if(term.gradeScaleId){
+      const sc = findGradeScale(term.gradeScaleId);
+      if(sc && sc.totalMax !== termTotalMax){
+        scaleWarning = `<div class="hint" style="color:var(--red);">⚠️ या स्केलचे कमाल गुण (${sc.totalMax}) व सत्राचे एकूण कमाल गुण (${termTotalMax}) जुळत नाहीत — योग्य स्केल निवडा किंवा "डेटा" टॅबमधून स्केलचे कमाल गुण बदला.</div>`;
+      }
+    }
+    block.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <b style="font-size:13px;color:var(--ink)">🗓️ ${term.termName}</b>
+        <button class="iconbtn" onclick="removeTerm('${subj.subjectId}','${term.termName}')">✕ सत्र काढा</button>
+      </div>
+      <div class="grid2" style="margin:8px 0 4px;">
+        <div>
+          <label style="margin:0 0 3px;">गट-अ चे नाव</label>
+          <input type="text" value="${glabelA(term)}" placeholder="आकारिक"
+            onchange="updateGroupLabel('${subj.subjectId}','${term.termName}','A',this.value)">
+        </div>
+        <div>
+          <label style="margin:0 0 3px;">गट-ब चे नाव</label>
+          <input type="text" value="${glabelB(term)}" placeholder="संकलित"
+            onchange="updateGroupLabel('${subj.subjectId}','${term.termName}','B',this.value)">
+        </div>
+      </div>
+      <div class="small-note" style="margin:6px 0 4px;">${glabelA(term)} — घटक (प्रत्येकाला वेगळे कमाल गुण द्या, उदा. प्रत्येकी 10)</div>
+      ${compsHtml}
+      <button class="btn-ghost btn-sm" onclick="addComp('${subj.subjectId}','${term.termName}')">+ ${glabelA(term)} घटक जोडा</button>
+      <div style="margin-top:8px;">
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink);">
+          <input type="checkbox" style="width:auto" ${term.hasExtra?'checked':''} onchange="toggleExtra('${subj.subjectId}','${term.termName}',this.checked)">
+          ${glabelB(term)} गट आहे का? (उदा. संकलित परीक्षा / तोंडी + लेखी)
+        </label>
+      </div>
+      ${term.hasExtra ? `<div style="margin-top:6px;">${extraHtml}<button class="btn-ghost btn-sm" onclick="addExtra('${subj.subjectId}','${term.termName}')">+ ${glabelB(term)} घटक जोडा</button></div>` : ''}
+      <div class="small-note" style="margin-top:8px;">
+        ${glabelA(term)} एकूण कमाल: <b>${maxComponents(term.components)}</b>
+        ${term.hasExtra ? ' · '+glabelB(term)+' एकूण कमाल: <b>'+maxComponents(term.extra)+'</b>' : ''}
+        · एकूण कमाल: <b>${termTotalMax}</b>
+      </div>
+      <label style="margin:10px 0 3px;">श्रेणी स्केल (या सत्रासाठी)</label>
+      <select onchange="updateTermGradeScale('${subj.subjectId}','${term.termName}',this.value)">
+        <option value="">— सर्वसाधारण % स्केल वापरा —</option>
+        ${appData.gradeScales.map(s=>`<option value="${s.id}" ${term.gradeScaleId===s.id?'selected':''}>${s.name} (कमाल ${s.totalMax})</option>`).join('')}
+      </select>
+      ${scaleWarning}
+    `;
+    wrap.appendChild(block);
+  });
+}
+function updateTermGradeScale(subjectId, termName, scaleId){
+  withTerm(subjectId, termName, (t)=>{ t.gradeScaleId = scaleId || null; });
+}
+function updateGroupLabel(subjectId, termName, which, val){
+  withTerm(subjectId, termName, (t)=>{
+    val = val.trim();
+    if(which==='A') t.groupALabel = val || 'आकारिक';
+    else t.groupBLabel = val || 'संकलित';
+  });
+}
+function withTerm(subjectId, termName, fn){
+  const cs = findCs(selectedCsId);
+  const subj = findSubject(cs, subjectId);
+  const term = findTerm(subj, termName);
+  fn(term, subj);
+  renderSubjectList();
+}
+function addComp(subjectId, termName){ withTerm(subjectId, termName, (t)=>{ t.components.push({key:uid('c'), label:'नवीन घटक', max:10}); }); }
+function removeComp(subjectId, termName, idx){ withTerm(subjectId, termName, (t)=>{ t.components.splice(idx,1); }); }
+function updateComp(subjectId, termName, idx, field, val){
+  withTerm(subjectId, termName, (t)=>{
+    // key is fixed at creation and never derived from the label — changing the label
+    // must not change the key, or already-entered marks for that column get orphaned.
+    if(field==='label'){ t.components[idx].label = val; }
+    else t.components[idx].max = Number(val)||0;
+  });
+}
+function addExtra(subjectId, termName){ withTerm(subjectId, termName, (t)=>{ t.extra.push({key:uid('e'), label:'नवीन घटक', max:10}); }); }
+function removeExtra(subjectId, termName, idx){ withTerm(subjectId, termName, (t)=>{ t.extra.splice(idx,1); }); }
+function updateExtra(subjectId, termName, idx, field, val){
+  withTerm(subjectId, termName, (t)=>{
+    if(field==='label'){ t.extra[idx].label = val; }
+    else t.extra[idx].max = Number(val)||0;
+  });
+}
+function toggleExtra(subjectId, termName, checked){
+  withTerm(subjectId, termName, (t)=>{
+    t.hasExtra = checked;
+    if(checked && t.extra.length===0) t.extra.push({key:'tondi',label:'तोंडी',max:10},{key:'lekhi',label:'लेखी',max:40});
+  });
+}
+function removeTerm(subjectId, termName){
+  showConfirmModal('हे सत्र काढायचे? यातील गुणसुद्धा काढले जातील.', function(){
+    const cs = findCs(selectedCsId);
+    const subj = findSubject(cs, subjectId);
+    subj.terms = subj.terms.filter(t=>t.termName!==termName);
+    appData.marks = appData.marks.filter(m=>!(m.subjectId===subjectId && m.termName===termName));
+    renderSubjectList();
+  });
+}
+
+/* ===================== SHARED SELECT REFRESH ===================== */
+function refreshCsSelects(){
+  // Only rebuilds the class-section dropdowns themselves, preserving each one's current
+  // selection. Does NOT touch subject/term selections on other tabs — see syncMarksSelectors()
+  // and syncResultSelectors(), which are called only for the tab actually being opened.
+  const opts = appData.classSections.map(cs=>`<option value="${cs.id}">${cs.class} वी ${cs.division}</option>`).join('');
+  ['stuCsSelect','marksCsSelect','resCsSelect'].forEach(id=>{
+    const el = document.getElementById(id);
+    const prev = el.value;
+    el.innerHTML = '<option value="">— निवडा —</option>' + opts;
+    el.value = appData.classSections.find(c=>c.id===prev) ? prev : '';
+  });
+}
+function syncMarksSelectors(){
+  const csId = document.getElementById('marksCsSelect').value;
+  const cs = findCs(csId);
+  const subjSel = document.getElementById('marksSubjSelect');
+  const prevSubj = subjSel.value;
+  subjSel.innerHTML = '<option value="">— निवडा —</option>' + (cs? cs.subjects.map(s=>`<option value="${s.subjectId}">${s.subjectName}</option>`).join(''):'');
+  subjSel.value = (cs && cs.subjects.find(s=>s.subjectId===prevSubj)) ? prevSubj : '';
+
+  const subj = cs? findSubject(cs, subjSel.value): null;
+  const termSel = document.getElementById('marksTermSelect');
+  const prevTerm = termSel.value;
+  termSel.innerHTML = '<option value="">— निवडा —</option>' + (subj? subj.terms.map(t=>`<option value="${t.termName}">${t.termName}</option>`).join(''):'');
+  termSel.value = (subj && subj.terms.find(t=>t.termName===prevTerm)) ? prevTerm : '';
+
+  renderMarksGrid();
+}
+function syncResultSelectors(){
+  const csId = document.getElementById('resCsSelect').value;
+  const cs = findCs(csId);
+  const termNames = new Set();
+  if(cs) cs.subjects.forEach(s=> s.terms.forEach(t=> termNames.add(t.termName)));
+  const optsHtml = [...termNames].map(t=>`<option value="${t}">${t}</option>`).join('');
+
+  const termSel = document.getElementById('resTermSelect');
+  const prevTerm = termSel.value;
+  termSel.innerHTML = '<option value="">— निवडा —</option>' + optsHtml;
+  termSel.value = termNames.has(prevTerm) ? prevTerm : '';
+
+  const termASel = document.getElementById('resTermASelect');
+  const termBSel = document.getElementById('resTermBSelect');
+  const prevA = termASel.value, prevB = termBSel.value;
+  termASel.innerHTML = '<option value="">— निवडा —</option>' + optsHtml;
+  termBSel.innerHTML = '<option value="">— निवडा —</option>' + optsHtml;
+  termASel.value = termNames.has(prevA) ? prevA : '';
+  termBSel.value = termNames.has(prevB) ? prevB : '';
+
+  const scaleSel = document.getElementById('resAnnualScaleSelect');
+  const prevScale = scaleSel.value;
+  scaleSel.innerHTML = '<option value="">— सर्वसाधारण % स्केल वापरा —</option>' +
+    appData.gradeScales.map(s=>`<option value="${s.id}">${s.name} (कमाल ${s.totalMax})</option>`).join('');
+  scaleSel.value = findGradeScale(prevScale) ? prevScale : '';
+
+  renderCombinedResult();
+}
+function onResModeChange(){
+  const mode = document.getElementById('resModeSelect').value;
+  document.getElementById('resSingleWrap').style.display = mode==='single' ? 'block':'none';
+  document.getElementById('resAnnualWrap').style.display = mode==='annual' ? 'block':'none';
+  renderCombinedResult();
+}
+function refreshActiveTabContent(){
+  const activeSection = document.querySelector('.section.active');
+  if(!activeSection) return;
+  const name = activeSection.id.replace('tab-','');
+  if(name==='students') renderStudentTable();
+  if(name==='marks') syncMarksSelectors();
+  if(name==='result') syncResultSelectors();
+}
+
+/* ===================== VOICE INPUT ===================== */
+function speechSupported(){
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+function voiceInput(inputId, btnEl){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    toast('या ब्राउझरमध्ये आवाज इनपुट उपलब्ध नाही — कृपया Chrome (Android) वापरा');
+    return;
+  }
+  const recog = new SpeechRecognition();
+  recog.lang = 'mr-IN'; // मराठी (भारत) — आवाज ओळखण्यासाठी
+  recog.interimResults = false;
+  recog.maxAlternatives = 1;
+  const input = document.getElementById(inputId);
+  const originalIcon = btnEl.textContent;
+  btnEl.textContent = '🎙️';
+  btnEl.disabled = true;
+  recog.onresult = function(event){
+    const text = event.results[0][0].transcript.trim();
+    input.value = text;
+    toast('आवाजाने नाव टाकले ✓ — तपासून घ्या');
+  };
+  recog.onerror = function(event){
+    if(event.error === 'not-allowed' || event.error === 'permission-denied'){
+      toast('मायक्रोफोन परवानगी नाकारली गेली — ब्राउझर सेटिंगमधून परवानगी द्या');
+    } else {
+      toast('आवाज ओळखता आला नाही, पुन्हा प्रयत्न करा');
+    }
+  };
+  recog.onend = function(){ btnEl.textContent = originalIcon; btnEl.disabled = false; };
+  try{ recog.start(); }catch(e){ btnEl.textContent = originalIcon; btnEl.disabled = false; }
+}
+function addStudent(){
+  const csId = document.getElementById('stuCsSelect').value;
+  if(!csId){ toast('आधी वर्ग-तुकडी निवडा'); return; }
+  const seatNo = document.getElementById('inSeatNo').value.trim();
+  const name = document.getElementById('inStuName').value.trim();
+  if(!seatNo || !name){ toast('बैठक क्र. व नाव टाका'); return; }
+  if(appData.students.find(s=>s.classSectionId===csId && s.seatNo===seatNo)){ toast('हा बैठक क्र. आधीच आहे'); return; }
+  const srNo = studentsInCs(csId).length + 1;
+  appData.students.push({ srNo, seatNo, classSectionId: csId, name });
+  document.getElementById('inSeatNo').value=''; document.getElementById('inStuName').value='';
+  renderStudentTable();
+  toast('विद्यार्थी जोडला ✓');
+}
+function deleteStudent(seatNo, csId){
+  showConfirmModal('हा विद्यार्थी व त्याचे गुण डिलीट करायचे?', function(){
+    const cs = findCs(csId);
+    const subjectIdsInCs = cs ? cs.subjects.map(s=>s.subjectId) : [];
+    appData.students = appData.students.filter(s=>!(s.seatNo===seatNo && s.classSectionId===csId));
+    // Only remove marks tied to THIS class-section's subjects — seat numbers can repeat across classes,
+    // so filtering by seatNo alone would wipe another class's same-numbered student's marks.
+    appData.marks = appData.marks.filter(m=> !(m.studentSeatNo===seatNo && subjectIdsInCs.includes(m.subjectId)));
+    let sr=1;
+    studentsInCs(csId).forEach(s=>{ s.srNo = sr++; });
+    renderStudentTable();
+  });
+}
+function renderStudentTable(){
+  const csId = document.getElementById('stuCsSelect').value;
+  document.getElementById('stuAddCard').style.display = csId? 'block':'none';
+  document.getElementById('stuTableCard').style.display = csId? 'block':'none';
+  if(!csId) return;
+  const list = studentsInCs(csId);
+  const tbl = document.getElementById('stuTable');
+  if(!list.length){ tbl.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">अजून विद्यार्थी नाही</td></tr>'; return; }
+  let html = '<tr><th>अ.क्र.</th><th>बैठक क्र.</th><th>नाव</th><th></th></tr>';
+  list.forEach(s=>{
+    html += `<tr><td>${s.srNo}</td><td>${s.seatNo}</td>
+      <td class="name-col">
+        <div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;">
+          <input type="text" value="${s.name}" style="width:120px;text-align:right;"
+            onchange="renameStudent('${s.seatNo}','${csId}',this.value)">
+          <button type="button" class="iconbtn" style="color:var(--ink)" title="आवाजाने नाव दुरुस्त करा"
+            onclick="voiceInputTableCell(this,'${s.seatNo}','${csId}')">🎤</button>
+        </div>
+      </td>
+      <td><button class="iconbtn" onclick="deleteStudent('${s.seatNo}','${csId}')">✕</button></td></tr>`;
+  });
+  tbl.innerHTML = html;
+}
+function renameStudent(seatNo, csId, newName){
+  newName = newName.trim();
+  if(!newName) return;
+  const stu = appData.students.find(s=>s.seatNo===seatNo && s.classSectionId===csId);
+  if(stu) stu.name = newName;
+  renderStudentTable();
+}
+function voiceInputTableCell(btnEl, seatNo, csId){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){ toast('या ब्राउझरमध्ये आवाज इनपुट उपलब्ध नाही — कृपया Chrome वापरा'); return; }
+  const recog = new SpeechRecognition();
+  recog.lang = 'mr-IN';
+  recog.interimResults = false;
+  recog.maxAlternatives = 1;
+  btnEl.textContent = '🎙️';
+  btnEl.disabled = true;
+  recog.onresult = function(event){
+    const text = event.results[0][0].transcript.trim();
+    renameStudent(seatNo, csId, text);
+    toast('नाव अद्ययावत केले ✓');
+  };
+  recog.onerror = function(){ toast('आवाज ओळखता आला नाही, पुन्हा प्रयत्न करा'); };
+  recog.onend = function(){ btnEl.textContent='🎤'; btnEl.disabled=false; };
+  try{ recog.start(); }catch(e){ btnEl.textContent='🎤'; btnEl.disabled=false; }
+}
+function importStudentsExcel(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const csId = document.getElementById('stuCsSelect').value;
+  if(!csId){ toast('आधी वर्ग-तुकडी निवडा'); return; }
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    const wb = XLSX.read(evt.target.result, {type:'binary'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+    let added = 0;
+    let sr = studentsInCs(csId).length + 1;
+    rows.forEach(r=>{
+      if(!Array.isArray(r) || r.length<2) return;
+      let seatNo, name;
+      // 3+ columns with a non-empty 3rd cell = अ.क्र. + बैठक क्र. + नाव; otherwise बैठक क्र. + नाव
+      if(r.length>=3 && r[2]!==undefined && r[2]!==null && String(r[2]).trim()!==''){
+        seatNo = (r[1]??'').toString().trim();
+        name = (r[2]??'').toString().trim();
+      } else {
+        seatNo = (r[0]??'').toString().trim();
+        name = (r[1]??'').toString().trim();
+      }
+      if(!seatNo || !name) return;
+      const seatLower = seatNo.toLowerCase();
+      if(seatLower.includes('seat') || seatNo.includes('क्र') || name.includes('नाव')) return; // skip header row
+      if(appData.students.find(s=>s.classSectionId===csId && s.seatNo===seatNo)) return;
+      appData.students.push({ srNo: sr++, classSectionId: csId, seatNo, name });
+      added++;
+    });
+    renderStudentTable();
+    toast(added + ' विद्यार्थी आयात झाले ✓');
+  };
+  reader.readAsBinaryString(file);
+}
+
+/* ===================== MARKS ENTRY ===================== */
+function onMarksCsChange(){
+  const csId = document.getElementById('marksCsSelect').value;
+  const subjSel = document.getElementById('marksSubjSelect');
+  const cs = findCs(csId);
+  subjSel.innerHTML = '<option value="">— निवडा —</option>' + (cs? cs.subjects.map(s=>`<option value="${s.subjectId}">${s.subjectName}</option>`).join(''):'');
+  document.getElementById('marksTermSelect').innerHTML = '<option value="">— निवडा —</option>';
+  document.getElementById('marksGridCard').style.display='none';
+}
+function onMarksSubjChange(){
+  const csId = document.getElementById('marksCsSelect').value;
+  const subjectId = document.getElementById('marksSubjSelect').value;
+  const cs = findCs(csId);
+  const subj = cs? findSubject(cs, subjectId): null;
+  const termSel = document.getElementById('marksTermSelect');
+  termSel.innerHTML = '<option value="">— निवडा —</option>' + (subj? subj.terms.map(t=>`<option value="${t.termName}">${t.termName}</option>`).join(''):'');
+  document.getElementById('marksGridCard').style.display='none';
+}
+function renderMarksGrid(){
+  const csId = document.getElementById('marksCsSelect').value;
+  const subjectId = document.getElementById('marksSubjSelect').value;
+  const termName = document.getElementById('marksTermSelect').value;
+  const card = document.getElementById('marksGridCard');
+  if(!csId||!subjectId||!termName){ card.style.display='none'; return; }
+  card.style.display='block';
+  const cs = findCs(csId);
+  const subj = findSubject(cs, subjectId);
+  const term = findTerm(subj, termName);
+  document.getElementById('marksGridTitle').textContent = `${cs.class} वी ${cs.division} · ${subj.subjectName} · ${term.termName}`;
+  const students = studentsInCs(csId);
+  const tbl = document.getElementById('marksTable');
+  const allCols = [...term.components, ...(term.hasExtra? term.extra: [])];
+  let head = '<tr><th>अ.क्र.</th><th class="name-col">नाव</th>';
+  term.components.forEach(c=> head += `<th>${c.label}<br><span class="small-note">(${c.max})</span></th>`);
+  head += `<th>${glabelA(term)} एकूण</th>`;
+  if(term.hasExtra){
+    term.extra.forEach(c=> head += `<th>${c.label}<br><span class="small-note">(${c.max})</span></th>`);
+    head += `<th>${glabelB(term)} एकूण</th>`;
+  }
+  head += `<th>एकूण</th><th>%</th><th>श्रेणी</th></tr>`;
+  let body = '';
+  if(!students.length){
+    body = `<tr><td colspan="99" style="padding:20px;color:var(--muted)">या वर्ग-तुकडीत विद्यार्थी नाहीत</td></tr>`;
+  }
+  students.forEach(stu=>{
+    const mrow = getMarkRow(stu.seatNo, subjectId, termName) || {values:{}};
+    const aTotal = sumComponents(term.components, mrow.values);
+    const aMax = maxComponents(term.components);
+    const bTotal = term.hasExtra? sumComponents(term.extra, mrow.values): 0;
+    const bMax = term.hasExtra? maxComponents(term.extra): 0;
+    const total = aTotal + bTotal;
+    const totalMax = aMax + bMax;
+    const pct = totalMax>0 ? (total/totalMax*100) : 0;
+    const grade = computeGradeForTerm(term, total, totalMax);
+    body += `<tr><td>${stu.srNo}</td><td class="name-col">${stu.name}</td>`;
+    term.components.forEach(c=>{
+      const v = mrow.values[c.key];
+      const bad = v!==undefined && (Number(v)>c.max || Number(v)<0);
+      body += `<td><input type="number" class="${bad?'err':''}" value="${v===undefined?'':v}" min="0" max="${c.max}"
+        onchange="setMarkValue('${stu.seatNo}','${subjectId}','${termName}','${c.key}',this.value,${c.max})"></td>`;
+    });
+    body += `<td><b>${aTotal}</b>/${aMax}</td>`;
+    if(term.hasExtra){
+      term.extra.forEach(c=>{
+        const v = mrow.values[c.key];
+        const bad = v!==undefined && (Number(v)>c.max || Number(v)<0);
+        body += `<td><input type="number" class="${bad?'err':''}" value="${v===undefined?'':v}" min="0" max="${c.max}"
+          onchange="setMarkValue('${stu.seatNo}','${subjectId}','${termName}','${c.key}',this.value,${c.max})"></td>`;
+      });
+      body += `<td><b>${bTotal}</b>/${bMax}</td>`;
+    }
+    body += `<td><b>${total}</b>/${totalMax}</td><td>${pct.toFixed(1)}%</td><td class="${gradeClass(grade)}">${grade}</td></tr>`;
+  });
+  tbl.innerHTML = head + body;
+}
+function setMarkValue(seatNo, subjectId, termName, key, val, max){
+  const mrow = getOrCreateMarkRow(seatNo, subjectId, termName);
+  if(val===''){ delete mrow.values[key]; }
+  else {
+    let n = Number(val);
+    mrow.values[key] = n;
+  }
+  renderMarksGrid();
+}
+
+/* ===================== COMBINED / ANNUAL RESULT ===================== */
+function onResCsChange(){
+  document.getElementById('resTableCard').style.display='none';
+  syncResultSelectors();
+}
+function subjectTermValue(subj, termName, seatNo){
+  const term = findTerm(subj, termName);
+  if(!term) return {total:0, max:0, term:null};
+  const mrow = getMarkRow(seatNo, subj.subjectId, termName) || {values:{}};
+  const aTotal = sumComponents(term.components, mrow.values);
+  const bTotal = term.hasExtra? sumComponents(term.extra, mrow.values):0;
+  const total = aTotal+bTotal;
+  const max = maxComponents(term.components) + (term.hasExtra?maxComponents(term.extra):0);
+  return {total, max, term};
+}
+function renderCombinedResult(){
+  const mode = document.getElementById('resModeSelect').value;
+  if(mode==='annual') renderAnnualResult();
+  else renderSingleTermResult();
+}
+function renderSingleTermResult(){
+  const csId = document.getElementById('resCsSelect').value;
+  const termName = document.getElementById('resTermSelect').value;
+  const card = document.getElementById('resTableCard');
+  if(!csId || !termName){ card.style.display='none'; return; }
+  card.style.display='block';
+  const cs = findCs(csId);
+  document.getElementById('resTableTitle').textContent = `${cs.class} वी ${cs.division} · ${termName} · निकालपत्रक`;
+  const subjectsInTerm = cs.subjects.filter(s=> s.terms.find(t=>t.termName===termName));
+  const students = studentsInCs(csId);
+  const tbl = document.getElementById('resTable');
+  let head = '<tr><th>अ.क्र.</th><th class="name-col">नाव</th>';
+  subjectsInTerm.forEach(s=> head += `<th>${s.subjectName}</th>`);
+  head += '<th>एकूण</th><th>%</th><th>श्रेणी</th><th>शेरा</th></tr>';
+  let body = '';
+  if(!students.length){ body = `<tr><td colspan="99" style="padding:20px;color:var(--muted)">विद्यार्थी नाहीत</td></tr>`; }
+  students.forEach(stu=>{
+    let grand=0, grandMax=0;
+    let cells = '';
+    subjectsInTerm.forEach(s=>{
+      const v = subjectTermValue(s, termName, stu.seatNo);
+      grand += v.total; grandMax += v.max;
+      cells += `<td>${v.total}</td>`;
+    });
+    const pct = grandMax>0? (grand/grandMax*100):0;
+    const grade = gradeFromPercent(pct);
+    const remark = pct>=35 ? 'उत्तीर्ण' : 'अनुत्तीर्ण';
+    body += `<tr><td>${stu.srNo}</td><td class="name-col">${stu.name}</td>${cells}
+      <td><b>${grand}</b>/${grandMax}</td><td>${pct.toFixed(1)}%</td>
+      <td class="${gradeClass(grade)}">${grade}</td><td>${remark}</td></tr>`;
+  });
+  tbl.innerHTML = head + body;
+}
+function renderAnnualResult(){
+  const csId = document.getElementById('resCsSelect').value;
+  const termA = document.getElementById('resTermASelect').value;
+  const termB = document.getElementById('resTermBSelect').value;
+  const scaleId = document.getElementById('resAnnualScaleSelect').value;
+  const card = document.getElementById('resTableCard');
+  if(!csId || !termA || !termB){ card.style.display='none'; return; }
+  if(termA===termB){ card.style.display='none'; toast('सत्र 1 व सत्र 2 वेगवेगळे निवडा'); return; }
+  card.style.display='block';
+  const cs = findCs(csId);
+  document.getElementById('resTableTitle').textContent = `${cs.class} वी ${cs.division} · ${termA} + ${termB} · वार्षिक/अंतिम निकाल`;
+  // subjects that appear in at least one of the two terms
+  const subjectsInBoth = cs.subjects.filter(s=> s.terms.find(t=>t.termName===termA) || s.terms.find(t=>t.termName===termB));
+  const students = studentsInCs(csId);
+  const tbl = document.getElementById('resTable');
+  let head = '<tr><th>अ.क्र.</th><th class="name-col">नाव</th>';
+  subjectsInBoth.forEach(s=> head += `<th>${s.subjectName}<br><span class="small-note">(100 पैकी)</span></th>`);
+  head += '<th>एकूण गुण</th><th>%</th><th>श्रेणी</th><th>शेरा</th></tr>';
+  let body = '';
+  if(!students.length){ body = `<tr><td colspan="99" style="padding:20px;color:var(--muted)">विद्यार्थी नाहीत</td></tr>`; }
+  students.forEach(stu=>{
+    let grand=0, grandMax=0;
+    let cells = '';
+    subjectsInBoth.forEach(s=>{
+      const vA = subjectTermValue(s, termA, stu.seatNo);
+      const vB = subjectTermValue(s, termB, stu.seatNo);
+      const combinedTotal = vA.total + vB.total;
+      const combinedMax = vA.max + vB.max;
+      const subjPct = combinedMax>0 ? (combinedTotal/combinedMax*100) : 0;
+      grand += combinedTotal; grandMax += combinedMax;
+      cells += `<td>${Math.round(subjPct)}</td>`;
+    });
+    const pct = grandMax>0? (grand/grandMax*100):0;
+    const grade = scaleId ? (function(){
+        const scale = findGradeScale(scaleId);
+        const sorted = [...scale.thresholds].sort((a,b)=>b.min-a.min);
+        // Annual scale thresholds are on a 100-point basis; pct is already /100.
+        for(const g of sorted){ if(pct>=g.min) return g.label; }
+        return sorted.length? sorted[sorted.length-1].label : '-';
+      })() : gradeFromPercent(pct);
+    const remark = pct>=35 ? 'उत्तीर्ण' : 'अनुत्तीर्ण';
+    body += `<tr><td>${stu.srNo}</td><td class="name-col">${stu.name}</td>${cells}
+      <td><b>${grand}</b>/${grandMax}</td><td>${pct.toFixed(1)}%</td>
+      <td class="${gradeClass(grade)}">${grade}</td><td>${remark}</td></tr>`;
+  });
+  tbl.innerHTML = head + body;
+}
+
+/* ===================== PRINT / PDF ===================== */
+function printHtmlTable(title, subtitle, tableEl){
+  if(!tableEl || !tableEl.innerHTML.trim()){ toast('आधी माहिती भरा/निवडा'); return; }
+  const w = window.open('', '_blank');
+  if(!w){ toast('पॉप-अप ब्लॉक झाला — ब्राउझर सेटिंगमधून या पेजसाठी पॉप-अप परवानगी द्या'); return; }
+  const doc = w.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8">
+    <title>${title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      body{font-family:'Noto Sans Devanagari', sans-serif; padding:22px; color:#111;}
+      h1{font-size:17px;margin:0 0 4px;}
+      h2{font-size:12.5px;margin:0 0 16px;color:#333;font-weight:600;}
+      table{border-collapse:collapse;width:100%;font-size:11px;}
+      th,td{border:1px solid #333;padding:5px 6px;text-align:center;}
+      th{background:#eee;}
+      .name-col{text-align:right;}
+      @media print{ @page{ size:A4 landscape; margin:10mm; } }
+    </style>
+    </head><body>
+    <h1>${appData.school.name}</h1>
+    <h2>${subtitle}</h2>
+    ${tableEl.outerHTML}
+    </body></html>`);
+  doc.close();
+  // wait a moment for the Devanagari web font to load before printing, so it doesn't fall back to boxes
+  setTimeout(()=>{ w.focus(); w.print(); }, 500);
+}
+function printMarksTable(){
+  const title = document.getElementById('marksGridTitle').textContent;
+  printHtmlTable('गुणपत्रक', title, document.getElementById('marksTable'));
+}
+function printResultTable(){
+  const title = document.getElementById('resTableTitle').textContent;
+  printHtmlTable('निकालपत्रक', title, document.getElementById('resTable'));
+}
+
+/* ===================== EXCEL EXPORT ===================== */
+function sanitizeSheetName(name){
+  return name.replace(/[:\\\/\?\*\[\]]/g,'-').slice(0,31);
+}
+function exportSubjectTermExcel(){
+  const csId = document.getElementById('marksCsSelect').value;
+  const subjectId = document.getElementById('marksSubjSelect').value;
+  const termName = document.getElementById('marksTermSelect').value;
+  const cs = findCs(csId); const subj = findSubject(cs, subjectId); const term = findTerm(subj, termName);
+  const students = studentsInCs(csId);
+
+  const aoa = [];
+  aoa.push([appData.school.name]);
+  aoa.push([`वर्ग: ${cs.class} वी ${cs.division}   विषय: ${subj.subjectName}   शिक्षक: ${subj.teacherName||''}   शैक्षणिक वर्ष: ${appData.academicYear}   सत्र: ${term.termName}`]);
+  aoa.push([]);
+  let header = ['अ.क्र.','बैठक क्र.','नाव', ...term.components.map(c=>c.label), glabelA(term)+' एकूण'];
+  if(term.hasExtra) header = header.concat(term.extra.map(c=>c.label), [glabelB(term)+' एकूण']);
+  header = header.concat(['एकूण','टक्केवारी','श्रेणी']);
+  aoa.push(header);
+  const maxRow = ['','','कमाल गुण', ...term.components.map(c=>c.max), maxComponents(term.components)];
+  if(term.hasExtra) maxRow.push(...term.extra.map(c=>c.max), maxComponents(term.extra));
+  maxRow.push(maxComponents(term.components)+(term.hasExtra?maxComponents(term.extra):0), '', '');
+  aoa.push(maxRow);
+
+  students.forEach(stu=>{
+    const mrow = getMarkRow(stu.seatNo, subjectId, termName) || {values:{}};
+    const aTotal = sumComponents(term.components, mrow.values);
+    const bTotal = term.hasExtra? sumComponents(term.extra, mrow.values):0;
+    const total = aTotal+bTotal;
+    const totalMax = maxComponents(term.components)+(term.hasExtra?maxComponents(term.extra):0);
+    const pct = totalMax>0? (total/totalMax*100):0;
+    const grade = computeGradeForTerm(term, total, totalMax);
+    let row = [stu.srNo, stu.seatNo, stu.name, ...term.components.map(c=> mrow.values[c.key]!==undefined? mrow.values[c.key]:''), aTotal];
+    if(term.hasExtra) row = row.concat(term.extra.map(c=> mrow.values[c.key]!==undefined? mrow.values[c.key]:''), bTotal);
+    row = row.concat([total, pct.toFixed(1)+'%', grade]);
+    aoa.push(row);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:header.length-1}}, {s:{r:1,c:0},e:{r:1,c:header.length-1}}];
+  ws['!cols'] = header.map((_,i)=> i===2? {wch:24} : {wch:12});
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName(subj.subjectName+'_'+term.termName));
+  XLSX.writeFile(wb, `${cs.class}${cs.division}_${subj.subjectName}_${term.termName}.xlsx`);
+  toast('Excel फाईल तयार झाली ✓');
+}
+
+function exportCombinedExcel(){
+  const mode = document.getElementById('resModeSelect').value;
+  if(mode==='annual') exportAnnualExcel();
+  else exportSingleTermResultExcel();
+}
+function exportSingleTermResultExcel(){
+  const csId = document.getElementById('resCsSelect').value;
+  const termName = document.getElementById('resTermSelect').value;
+  const cs = findCs(csId);
+  const subjectsInTerm = cs.subjects.filter(s=> s.terms.find(t=>t.termName===termName));
+  const students = studentsInCs(csId);
+
+  const aoa = [];
+  aoa.push([appData.school.name]);
+  aoa.push([`वर्ग: ${cs.class} वी ${cs.division}   सत्र: ${termName}   शैक्षणिक वर्ष: ${appData.academicYear} — एकत्रित निकाल`]);
+  aoa.push([]);
+  const header = ['अ.क्र.','बैठक क्र.','नाव', ...subjectsInTerm.map(s=>s.subjectName), 'एकूण गुण','टक्केवारी','श्रेणी','शेरा'];
+  aoa.push(header);
+
+  students.forEach(stu=>{
+    let grand=0, grandMax=0;
+    const cells = subjectsInTerm.map(s=>{
+      const v = subjectTermValue(s, termName, stu.seatNo);
+      grand+=v.total; grandMax+=v.max;
+      return v.total;
+    });
+    const pct = grandMax>0? (grand/grandMax*100):0;
+    const grade = gradeFromPercent(pct);
+    const remark = pct>=35 ? 'उत्तीर्ण' : 'अनुत्तीर्ण';
+    aoa.push([stu.srNo, stu.seatNo, stu.name, ...cells, grand, pct.toFixed(1)+'%', grade, remark]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:header.length-1}}, {s:{r:1,c:0},e:{r:1,c:header.length-1}}];
+  ws['!cols'] = header.map((_,i)=> i===2? {wch:24} : {wch:12});
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName(termName+'_result'));
+  XLSX.writeFile(wb, `${cs.class}${cs.division}_${termName}_result.xlsx`);
+  toast('निकाल Excel तयार झाला ✓');
+}
+function exportAnnualExcel(){
+  const csId = document.getElementById('resCsSelect').value;
+  const termA = document.getElementById('resTermASelect').value;
+  const termB = document.getElementById('resTermBSelect').value;
+  const scaleId = document.getElementById('resAnnualScaleSelect').value;
+  const cs = findCs(csId);
+  const subjectsInBoth = cs.subjects.filter(s=> s.terms.find(t=>t.termName===termA) || s.terms.find(t=>t.termName===termB));
+  const students = studentsInCs(csId);
+
+  const aoa = [];
+  aoa.push([appData.school.name]);
+  aoa.push([`वर्ग: ${cs.class} वी ${cs.division}   सत्र: ${termA} + ${termB}   शैक्षणिक वर्ष: ${appData.academicYear} — वार्षिक/अंतिम निकाल`]);
+  aoa.push([]);
+  const header = ['अ.क्र.','बैठक क्र.','नाव', ...subjectsInBoth.map(s=>s.subjectName+' (100 पैकी)'), 'एकूण गुण','टक्केवारी','श्रेणी','शेरा'];
+  aoa.push(header);
+
+  students.forEach(stu=>{
+    let grand=0, grandMax=0;
+    const cells = subjectsInBoth.map(s=>{
+      const vA = subjectTermValue(s, termA, stu.seatNo);
+      const vB = subjectTermValue(s, termB, stu.seatNo);
+      const combinedTotal = vA.total + vB.total;
+      const combinedMax = vA.max + vB.max;
+      const subjPct = combinedMax>0 ? (combinedTotal/combinedMax*100) : 0;
+      grand += combinedTotal; grandMax += combinedMax;
+      return Math.round(subjPct);
+    });
+    const pct = grandMax>0? (grand/grandMax*100):0;
+    const grade = scaleId ? (function(){
+        const scale = findGradeScale(scaleId);
+        const sorted = [...scale.thresholds].sort((a,b)=>b.min-a.min);
+        for(const g of sorted){ if(pct>=g.min) return g.label; }
+        return sorted.length? sorted[sorted.length-1].label : '-';
+      })() : gradeFromPercent(pct);
+    const remark = pct>=35 ? 'उत्तीर्ण' : 'अनुत्तीर्ण';
+    aoa.push([stu.srNo, stu.seatNo, stu.name, ...cells, grand, pct.toFixed(1)+'%', grade, remark]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:header.length-1}}, {s:{r:1,c:0},e:{r:1,c:header.length-1}}];
+  ws['!cols'] = header.map((_,i)=> i===2? {wch:24} : {wch:12});
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName(termA+'_'+termB+'_annual'));
+  XLSX.writeFile(wb, `${cs.class}${cs.division}_वार्षिक_निकाल.xlsx`);
+  toast('वार्षिक निकाल Excel तयार झाला ✓');
+}
+
+/* ===================== DATA SAVE / LOAD ===================== */
+function downloadData(){
+  const blob = new Blob([JSON.stringify(appData, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `varana_gunpatrak_data_${appData.academicYear}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('डेटा डाऊनलोड झाला ✓');
+}
+function loadDataFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const doMerge = document.getElementById('mergeLoadCheck').checked;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try{
+      const parsed = JSON.parse(evt.target.result);
+      if(doMerge){
+        mergeIntoAppData(parsed);
+        toast('डेटा मिसळून जोडला ✓');
+      } else {
+        appData = parsed;
+        toast('डेटा यशस्वीरित्या लोड झाला ✓ (जुना डेटा बदलला)');
+      }
+      selectedCsId = null;
+      initAll();
+    }catch(err){
+      toast('फाईल वाचता आली नाही — योग्य JSON फाईल निवडा');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+function mergeIntoAppData(incoming){
+  if(!incoming || typeof incoming !== 'object') return;
+  // Class-sections: merge by id — if a class-section already exists, merge its subjects in;
+  // a subject is matched by (subjectName + teacherName) since subjectId is randomly generated
+  // per device and won't match across two independently-filled files.
+  (incoming.classSections||[]).forEach(inCs=>{
+    let cs = findCs(inCs.id);
+    if(!cs){
+      appData.classSections.push(JSON.parse(JSON.stringify(inCs)));
+      return;
+    }
+    (inCs.subjects||[]).forEach(inSubj=>{
+      const existing = cs.subjects.find(s=> s.subjectName===inSubj.subjectName && s.teacherName===inSubj.teacherName);
+      if(!existing){
+        cs.subjects.push(JSON.parse(JSON.stringify(inSubj)));
+      } else {
+        // merge terms within the matched subject, by termName
+        (inSubj.terms||[]).forEach(inTerm=>{
+          const existTerm = existing.terms.find(t=>t.termName===inTerm.termName);
+          if(!existTerm) existing.terms.push(JSON.parse(JSON.stringify(inTerm)));
+          // if the term already exists in both, keep the local version as-is (avoid clobbering local edits)
+        });
+        // remap incoming marks for this subject to use the LOCAL subjectId, since ids differ per device
+        (incoming.marks||[]).forEach(m=>{ if(m.subjectId===inSubj.subjectId) m.subjectId = existing.subjectId; });
+      }
+    });
+  });
+  // Students: merge by (classSectionId + seatNo) — skip duplicates, keep local copy on conflict
+  (incoming.students||[]).forEach(inStu=>{
+    const exists = appData.students.find(s=> s.classSectionId===inStu.classSectionId && s.seatNo===inStu.seatNo);
+    if(!exists){
+      const nextSr = studentsInCs(inStu.classSectionId).length + 1;
+      appData.students.push({...inStu, srNo: nextSr});
+    }
+  });
+  // Marks: merge by (studentSeatNo + subjectId + termName) — incoming wins only if local mark is empty
+  (incoming.marks||[]).forEach(inMark=>{
+    const local = appData.marks.find(m=> m.studentSeatNo===inMark.studentSeatNo && m.subjectId===inMark.subjectId && m.termName===inMark.termName);
+    if(!local){
+      appData.marks.push(JSON.parse(JSON.stringify(inMark)));
+    }
+    // if local already has this row, keep local values untouched to avoid overwriting existing work
+  });
+  // Grade scales: add any scale whose name doesn't already exist locally
+  (incoming.gradeScales||[]).forEach(inScale=>{
+    if(!appData.gradeScales.find(s=>s.name===inScale.name)){
+      appData.gradeScales.push(JSON.parse(JSON.stringify(inScale)));
+    }
+  });
+}
+function resetAllData(){
+  showConfirmModal('संपूर्ण डेटा कायमचा मिटवायचा आहे का? ही क्रिया परत करता येणार नाही.', function(){
+    appData = {
+      school: { name: "श्री वारणा विद्यालय, वारणानगर", taluka: "पन्हाळा" },
+      academicYear: "2024-25",
+      classSections: [], students: [], marks: [],
+      gradeThresholds: [
+        {min:91,label:"A1"},{min:81,label:"A2"},{min:71,label:"B1"},{min:61,label:"B2"},
+        {min:51,label:"C1"},{min:41,label:"C2"},{min:0,label:"D"}
+      ]
+    };
+    selectedCsId = null;
+    initAll();
+    toast('सर्व डेटा मिटवला');
+  });
+}
+
+/* ===================== GRADE SETTINGS ===================== */
+function renderGradeScales(){
+  const wrap = document.getElementById('gradeScalesWrap');
+  wrap.innerHTML = '';
+  if(!appData.gradeScales.length){
+    wrap.innerHTML = '<div class="small-note">अजून कोणतीही स्केल नाही.</div>';
+    return;
+  }
+  appData.gradeScales.forEach(scale=>{
+    const block = document.createElement('div');
+    block.className = 'term-block';
+    let rowsHtml = scale.thresholds.map((t,ti)=>`
+      <div class="comp-row">
+        <input type="number" class="maxnum" value="${t.min}" placeholder="किमान गुण"
+          onchange="updateGradeScaleRow('${scale.id}',${ti},'min',this.value)">
+        <input type="text" value="${t.label}" placeholder="श्रेणी"
+          onchange="updateGradeScaleRow('${scale.id}',${ti},'label',this.value)">
+        <button class="iconbtn" onclick="removeGradeScaleRow('${scale.id}',${ti})">✕</button>
+      </div>`).join('');
+    block.innerHTML = `
+      <div class="grid2" style="margin-bottom:8px;">
+        <div>
+          <label style="margin:0 0 3px;">स्केलचे नाव</label>
+          <input type="text" value="${scale.name}" onchange="updateGradeScaleMeta('${scale.id}','name',this.value)">
+        </div>
+        <div>
+          <label style="margin:0 0 3px;">एकूण कमाल गुण</label>
+          <input type="number" value="${scale.totalMax}" onchange="updateGradeScaleMeta('${scale.id}','totalMax',this.value)">
+        </div>
+      </div>
+      <div class="small-note" style="margin-bottom:4px;">किमान गुण (raw marks) व श्रेणी — जास्त गुणांची रांग वर ठेवा</div>
+      ${rowsHtml}
+      <div class="row" style="margin-top:8px;">
+        <button class="btn-ghost btn-sm" onclick="addGradeScaleRow('${scale.id}')">+ श्रेणी ओळ जोडा</button>
+        <button class="btn-danger btn-sm" onclick="removeGradeScale('${scale.id}')">✕ ही स्केल काढा</button>
+      </div>
+    `;
+    wrap.appendChild(block);
+  });
+}
+function addGradeScale(){
+  appData.gradeScales.push({
+    id: uid('scale'), name: 'नवीन स्केल', totalMax: 100,
+    thresholds: [{min:91,label:'A1'},{min:81,label:'A2'},{min:71,label:'B1'},{min:61,label:'B2'},{min:51,label:'C1'},{min:41,label:'C2'},{min:0,label:'D'}]
+  });
+  renderGradeScales();
+  toast('नवीन स्केल जोडली — नाव व गुण बदला');
+}
+function removeGradeScale(id){
+  showConfirmModal('ही स्केल काढायची? जी सत्रे ही स्केल वापरत आहेत ती सर्वसाधारण % स्केलकडे वळतील.', function(){
+    appData.gradeScales = appData.gradeScales.filter(s=>s.id!==id);
+    // Un-assign this scale from any term that was using it, so grading doesn't silently break.
+    appData.classSections.forEach(cs=> cs.subjects.forEach(s=> s.terms.forEach(t=>{
+      if(t.gradeScaleId===id) t.gradeScaleId = null;
+    })));
+    renderGradeScales();
+    renderMarksGrid();
+    renderCombinedResult();
+  });
+}
+function updateGradeScaleMeta(id, field, val){
+  const scale = findGradeScale(id);
+  if(!scale) return;
+  if(field==='name') scale.name = val.trim() || 'स्केल';
+  else scale.totalMax = Number(val)||0;
+  renderGradeScales();
+  renderMarksGrid();
+}
+function addGradeScaleRow(id){
+  const scale = findGradeScale(id);
+  scale.thresholds.push({min:0, label:'नवीन'});
+  renderGradeScales();
+}
+function removeGradeScaleRow(id, idx){
+  const scale = findGradeScale(id);
+  scale.thresholds.splice(idx,1);
+  renderGradeScales();
+}
+function updateGradeScaleRow(id, idx, field, val){
+  const scale = findGradeScale(id);
+  if(field==='min') scale.thresholds[idx].min = Number(val)||0;
+  else scale.thresholds[idx].label = val;
+  renderMarksGrid();
+}
+
+function renderGradeTable(){
+  const wrap = document.getElementById('gradeTableWrap');
+  let html = '<div class="tblwrap"><table><tr><th>किमान %</th><th>श्रेणी</th><th></th></tr>';
+  appData.gradeThresholds.forEach((g,i)=>{
+    html += `<tr>
+      <td><input type="number" value="${g.min}" onchange="appData.gradeThresholds[${i}].min=Number(this.value)"></td>
+      <td><input type="text" value="${g.label}" onchange="appData.gradeThresholds[${i}].label=this.value"></td>
+      <td><button class="iconbtn" onclick="removeGradeRow(${i})">✕</button></td>
+    </tr>`;
+  });
+  html += '</table></div>';
+  wrap.innerHTML = html;
+}
+function addGradeRow(){ appData.gradeThresholds.push({min:0,label:'नवीन'}); renderGradeTable(); }
+function removeGradeRow(i){ appData.gradeThresholds.splice(i,1); renderGradeTable(); }
+function saveGrades(){ toast('श्रेणी निकष जतन झाले ✓'); renderMarksGrid(); renderCombinedResult(); }
+
+/* ===================== INIT ===================== */
+function initAll(){
+  // Backward-compatibility: older saved JSON files may not have these fields yet.
+  if(!Array.isArray(appData.gradeScales)) appData.gradeScales = [];
+  if(!Array.isArray(appData.gradeThresholds)) appData.gradeThresholds = [
+    {min:91,label:"A1"},{min:81,label:"A2"},{min:71,label:"B1"},{min:61,label:"B2"},
+    {min:51,label:"C1"},{min:41,label:"C2"},{min:0,label:"D"}
+  ];
+  document.getElementById('inSchoolName').value = appData.school.name;
+  document.getElementById('inYear').value = appData.academicYear;
+  document.getElementById('schoolTitle').textContent = appData.school.name;
+  document.getElementById('yearSub').textContent = 'शैक्षणिक वर्ष ' + appData.academicYear;
+  document.getElementById('subjSetupCard').style.display = 'none';
+  document.getElementById('stuAddCard').style.display = 'none';
+  document.getElementById('stuTableCard').style.display = 'none';
+  document.getElementById('marksGridCard').style.display = 'none';
+  document.getElementById('resTableCard').style.display = 'none';
+  document.getElementById('micHintStuName').style.display = speechSupported() ? 'block' : 'none';
+  if(!speechSupported()){
+    const mic = document.getElementById('micBtnStuName');
+    if(mic){ mic.style.display = 'none'; }
+  }
+  renderCsList();
+  renderGradeTable();
+  renderGradeScales();
+  refreshCsSelects();
+  refreshActiveTabContent();
+}
+initAll();
+initCloudSync();
+</script>
+</body>
+</html>
