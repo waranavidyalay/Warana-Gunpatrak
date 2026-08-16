@@ -1,0 +1,33 @@
+{
+  "name": "वारणा गुणपत्रक",
+  "short_name": "वारणा गुणपत्रक",
+  "description": "श्री वारणा विद्यालय, वारणानगर — विद्यार्थी गुण नोंदणी व निकालपत्रक तयार करण्यासाठी डिजिटल गुणपत्रक अॅप",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FAF6EC",
+  "theme_color": "#16213E",
+  "lang": "mr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
