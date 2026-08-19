@@ -344,7 +344,7 @@ select.subj-select{margin-bottom:8px;}
   <section class="section" id="tab-data">
     <div class="card">
       <h2>💾 डेटा जतन / पुनर्संचयित</h2>
-      <div class="subtle-card">खाली "☁️ क्लाउड सिंक" सेट केलेले नसेल, तर हा app कोणत्याही सर्व्हरला जोडलेला नाही — प्रत्येक ब्राउझर/फोन स्वतंत्र असतो. अशा वेळी काम झाल्यावर <b>"डेटा डाऊनलोड करा"</b> दाबून JSON फाईल सेव्ह करा; दुसऱ्या डिव्हाइसवर काम सुरू ठेवायचे असल्यास तीच फाईल तिथे <b>लोड</b> करा.</div>
+      <div class="subtle-card">✅ हा फोन/ब्राउझर बंद केला तरी डेटा आपोआप याच डिव्हाइसवर सुरक्षित राहतो (स्वयंचलित बॅकअप). पण दुसऱ्या डिव्हाइसवर तोच डेटा हवा असल्यास खालीलपैकी एक करा: <b>☁️ क्लाउड सिंक</b> (सर्वात सोपे, आपोआप) किंवा <b>JSON डाऊनलोड/लोड</b> (मॅन्युअल).</div>
       <button class="btn-primary btn-block" onclick="downloadData()">⬇️ डेटा डाऊनलोड करा (.json)</button>
       <div class="divider"></div>
       <label>डेटा फाईल निवडा (.json)</label>
@@ -423,26 +423,50 @@ let appData = {
   students: [],        // {srNo, seatNo, classSectionId, name}
   marks: [],           // {studentSeatNo, subjectId, termName, values:{}}
   gradeThresholds: [
-    {min:91,label:"A1"},{min:81,label:"A2"},{min:71,label:"B1"},{min:61,label:"B2"},
-    {min:51,label:"C1"},{min:41,label:"C2"},{min:0,label:"D"}
+    {min:91,label:"अ1"},{min:81,label:"अ2"},{min:71,label:"ब1"},{min:61,label:"ब2"},
+    {min:51,label:"क1"},{min:41,label:"क2"},{min:0,label:"ड"}
   ],
   // Named grade scales using RAW score bands (not %) — because Maharashtra progress-card
   // grade tables are given per total-marks (50/80/100 etc.), and 1-8 वी vs 9-10 वी differ.
-  // These starting values are approximate/proportional placeholders — always verify and
-  // edit them against your school's official circular before relying on them.
+  // Labels (अ1/अ2/ब1/ब2/क1/क2/ड) and thresholds confirmed directly from the school's own
+  // sample gunpatrak files (अ=A, ब=B, क=C, ड=D). Still worth re-checking against your
+  // school's current official circular before relying on them for a real result.
   gradeScales: [
     { id:'scale_100_910', name:'100 गुणांसाठी (9वी-10वी)', totalMax:100,
-      thresholds:[{min:91,label:'A1'},{min:81,label:'A2'},{min:71,label:'B1'},{min:61,label:'B2'},{min:51,label:'C1'},{min:41,label:'C2'},{min:0,label:'D'}] },
+      thresholds:[{min:91,label:'अ1'},{min:81,label:'अ2'},{min:71,label:'ब1'},{min:61,label:'ब2'},{min:51,label:'क1'},{min:41,label:'क2'},{min:0,label:'ड'}] },
     { id:'scale_80', name:'80 गुणांसाठी', totalMax:80,
-      thresholds:[{min:73,label:'A1'},{min:65,label:'A2'},{min:57,label:'B1'},{min:49,label:'B2'},{min:41,label:'C1'},{min:33,label:'C2'},{min:0,label:'D'}] },
+      thresholds:[{min:73,label:'अ1'},{min:65,label:'अ2'},{min:57,label:'ब1'},{min:49,label:'ब2'},{min:41,label:'क1'},{min:33,label:'क2'},{min:0,label:'ड'}] },
     { id:'scale_50', name:'50 गुणांसाठी', totalMax:50,
-      thresholds:[{min:46,label:'A1'},{min:41,label:'A2'},{min:36,label:'B1'},{min:31,label:'B2'},{min:26,label:'C1'},{min:21,label:'C2'},{min:0,label:'D'}] },
+      thresholds:[{min:46,label:'अ1'},{min:41,label:'अ2'},{min:36,label:'ब1'},{min:31,label:'ब2'},{min:26,label:'क1'},{min:21,label:'क2'},{min:0,label:'ड'}] },
     { id:'scale_1to8', name:'1 ली ते 8 वी सर्वसाधारण (100 पैकी) — उदाहरण, तपासून घ्या', totalMax:100,
       thresholds:[{min:75,label:'अ'},{min:60,label:'ब'},{min:45,label:'क'},{min:35,label:'ड'},{min:0,label:'ई'}] }
   ]
 };
 
 let selectedCsId = null; // for setup screen
+
+/* ===================== DEVICE-LOCAL AUTO-BACKUP =====================
+   Runs as a real hosted page (GitHub Pages / installed APK), not inside a sandboxed
+   artifact preview, so localStorage is safe and reliable here. This is a per-device
+   safety net so data is never lost just because the app was closed before pressing
+   "क्लाउडवर पाठवा" — it does NOT replace cloud sync for sharing across devices. */
+const LOCAL_BACKUP_KEY = 'varana_gunpatrak_local_backup_v1';
+function saveLocalBackup(){
+  try{ localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(appData)); }catch(e){}
+}
+function loadLocalBackup(){
+  try{
+    const raw = localStorage.getItem(LOCAL_BACKUP_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+// Restore this device's last-known data immediately, before anything else runs,
+// so the person never sees a blank first-screen just because they closed the app.
+(function restoreLocalBackupOnBoot(){
+  const backup = loadLocalBackup();
+  if(backup) appData = backup;
+})();
 
 /* ===================== ☁️ CLOUD SYNC (Firebase) =====================
    To enable: create a free Firebase project (https://console.firebase.google.com),
@@ -528,6 +552,7 @@ function pullFromCloud(silent){
     appData = JSON.parse(data.json);
     selectedCsId = null;
     initAll();
+    saveLocalBackup();
     refreshCloudStatusMsg();
     if(!silent) toast('क्लाउडवरून नवीनतम डेटा आणला ✓');
   }).catch(err=>{ if(!silent) toast('क्लाउडवरून आणता आले नाही: ' + err.message); });
@@ -584,9 +609,9 @@ function computeGradeForTerm(term, total, totalMax){
   return gradeFromPercent(pct);
 }
 function gradeClass(label){
-  if(/^A/.test(label) || label==='अ') return 'grade-A';
-  if(/^B/.test(label) || label==='ब') return 'grade-B';
-  if(label==='क') return 'grade-B';
+  if(/^A/.test(label) || label==='अ' || label==='अ1' || label==='अ2') return 'grade-A';
+  if(/^B/.test(label) || label==='ब' || label==='ब1' || label==='ब2') return 'grade-B';
+  if(label==='क' || label==='क1' || label==='क2') return 'grade-B';
   return 'grade-C';
 }
 
@@ -1541,12 +1566,13 @@ function resetAllData(){
       academicYear: "2024-25",
       classSections: [], students: [], marks: [],
       gradeThresholds: [
-        {min:91,label:"A1"},{min:81,label:"A2"},{min:71,label:"B1"},{min:61,label:"B2"},
-        {min:51,label:"C1"},{min:41,label:"C2"},{min:0,label:"D"}
+        {min:91,label:"अ1"},{min:81,label:"अ2"},{min:71,label:"ब1"},{min:61,label:"ब2"},
+        {min:51,label:"क1"},{min:41,label:"क2"},{min:0,label:"ड"}
       ]
     };
     selectedCsId = null;
     initAll();
+    try{ localStorage.removeItem(LOCAL_BACKUP_KEY); }catch(e){}
     toast('सर्व डेटा मिटवला');
   });
 }
@@ -1658,8 +1684,8 @@ function initAll(){
   // Backward-compatibility: older saved JSON files may not have these fields yet.
   if(!Array.isArray(appData.gradeScales)) appData.gradeScales = [];
   if(!Array.isArray(appData.gradeThresholds)) appData.gradeThresholds = [
-    {min:91,label:"A1"},{min:81,label:"A2"},{min:71,label:"B1"},{min:61,label:"B2"},
-    {min:51,label:"C1"},{min:41,label:"C2"},{min:0,label:"D"}
+    {min:91,label:"अ1"},{min:81,label:"अ2"},{min:71,label:"ब1"},{min:61,label:"ब2"},
+    {min:51,label:"क1"},{min:41,label:"क2"},{min:0,label:"ड"}
   ];
   document.getElementById('inSchoolName').value = appData.school.name;
   document.getElementById('inYear').value = appData.academicYear;
@@ -1688,6 +1714,13 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('service-worker.js').catch(()=>{});
   });
 }
+// Auto-save to this device every few seconds, and immediately whenever the app is
+// closed/backgrounded/tab-switched — covers Android's "back button" and "recent apps"
+// close paths, which don't reliably fire a normal page-unload event.
+setInterval(saveLocalBackup, 4000);
+window.addEventListener('beforeunload', saveLocalBackup);
+window.addEventListener('pagehide', saveLocalBackup);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') saveLocalBackup(); });
 </script>
 </body>
 </html>
